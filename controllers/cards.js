@@ -71,6 +71,10 @@ module.exports.deleteCardLike = (req, res) => {
     .orFail()
     .then((card) => res.status(OK).send(card))
     .catch((err) => {
+      if (err.name === 'CastError') {
+        console.log('не нашли');
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные', err: err.message, stack: err.stack });
+      }
       if (err.name === 'DocumentNotFoundError') {
         return res.status(NOT_FOUND).send({ message: 'Карточка  с указаным id не найдена', err: err.message, stack: err.stack });
       }
