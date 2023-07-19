@@ -1,5 +1,4 @@
 const Card = require('../models/card');
-const { OK } = require('../utils/constants');
 const { CREATE } = require('../utils/constants');
 const { BAD_REQUEST } = require('../utils/constants');
 const { NOT_FOUND } = require('../utils/constants');
@@ -13,32 +12,32 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.status(CREATE).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданны некорретные даные при создании пользователя', err: err.message, stack: err.stack });
+        res.status(BAD_REQUEST).send({ message: 'Переданны некорретные даные при создании пользователя' });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка', err: err.message, stack: err.stack });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((users) => res.status(OK).send(users))
-    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка', err: err.message, stack: err.stack }));
+    .then((users) => res.send(users))
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail()
-    .then((card) => res.status(OK).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         console.log('не нашли');
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные', err: err.message, stack: err.stack });
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'Карточка  с указаным id не найдена', err: err.message, stack: err.stack });
+        return res.status(NOT_FOUND).send({ message: 'Карточка  с указаным id не найдена' });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера', err: err.message, stack: err.stack });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера' });
     });
 };
 
@@ -49,16 +48,16 @@ module.exports.putCardLike = (req, res) => {
     { new: true },
   )
     .orFail()
-    .then((card) => res.status(OK).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         console.log('не нашли');
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные', err: err.message, stack: err.stack });
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'Карточка с указаным id не найдена', err: err.message, stack: err.stack });
+        return res.status(NOT_FOUND).send({ message: 'Карточка с указаным id не найдена' });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера', err: err.message, stack: err.stack });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера' });
     });
 };
 
@@ -69,15 +68,15 @@ module.exports.deleteCardLike = (req, res) => {
     { new: true },
   )
     .orFail()
-    .then((card) => res.status(OK).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         console.log('не нашли');
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные', err: err.message, stack: err.stack });
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'Карточка  с указаным id не найдена', err: err.message, stack: err.stack });
+        return res.status(NOT_FOUND).send({ message: 'Карточка  с указаным id не найдена' });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера', err: err.message, stack: err.stack });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера' });
     });
 };
