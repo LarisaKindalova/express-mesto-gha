@@ -1,10 +1,11 @@
 const Card = require('../models/card');
 const { CREATE } = require('../utils/constants');
-const { BAD_REQUEST } = require('../utils/constants');
-const { NOT_FOUND } = require('../utils/constants');
 const { INTERNAL_SERVER_ERROR } = require('../utils/constants');
+const { BadRequest } = require('../errors/bad_request');
+const { NotFound } = require('../errors/not_found');
+const { ForbiddenError } = require('../errors/forbidden_err');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -12,9 +13,9 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.status(CREATE).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданны некорретные даные при создании пользователя' });
+        next(new BadRequest('Переданны некорретные даные при создании пользователя'));
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
@@ -25,23 +26,22 @@ module.exports.getCards = (req, res) => {
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail()
-    .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        console.log('не нашли');
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+module.exports.deleteCard = (req, res, next) => {
+  // const { cardId } = req.params.cardId;
+  Card.findById(req.params.cardId)
+    .orFail(new NotFound('Карточка  с указаным id не найдена'))
+    .then((card) => {
+      if (String(card.owner) !== req.user._id) {
+        console.log(card.owner, req.user._id);
+        return Promise.reject(new ForbiddenError('Не возможно удалить чужую карточку'));
       }
-      if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'Карточка  с указаным id не найдена' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера' });
-    });
+      return Card.deleteOne(card)
+        .then(() => res.send(card));
+    })
+    .catch(next);
 };
 
-module.exports.putCardLike = (req, res) => {
+module.exports.putCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -52,16 +52,16 @@ module.exports.putCardLike = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         console.log('не нашли');
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequest('Переданы некорректные данные'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'Карточка с указаным id не найдена' });
+        next(new NotFound('Карточка с указаным id не найдена'));
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера' });
+      next(err);
     });
 };
 
-module.exports.deleteCardLike = (req, res) => {
+module.exports.deleteCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -72,11 +72,11 @@ module.exports.deleteCardLike = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         console.log('не нашли');
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequest('Переданы некорректные данные'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'Карточка  с указаным id не найдена' });
+        next(new NotFound('Карточка  с указаным id не найдена'));
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренная ошибка сервера' });
+      next(err);
     });
 };
