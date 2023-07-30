@@ -1,28 +1,29 @@
 const { celebrate, Joi } = require('celebrate');
 
 const regex = /(?:https?):?(\/\/?)(w{3})?\.?\w+(-\w+)*\.[a-z0-9A_Z]+(\/[\w\-.~:/?#[\]@!$&'()*+,;=]*#?)?/;
-const validateUpdateUser = celebrate({
+
+module.exports.validateUpdateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
     about: Joi.string().min(2).max(30).required(),
   }),
 });
 
-const validateUpdateAvatar = celebrate({
+module.exports.validateUpdateAvatar = celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().pattern(regex).required(),
   }),
 
 });
 
-const validateCreateCard = celebrate({
+module.exports.validateCreateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
     link: Joi.string().pattern(regex).required(),
   }),
 });
 
-const validateCreateUser = celebrate({
+module.exports.validateCreateUser = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
@@ -32,17 +33,9 @@ const validateCreateUser = celebrate({
   }),
 });
 
-const validateLogin = celebrate({
+module.exports.validateLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 });
-
-module.exports = {
-  validateUpdateUser,
-  validateUpdateAvatar,
-  validateCreateCard,
-  validateCreateUser,
-  validateLogin,
-};

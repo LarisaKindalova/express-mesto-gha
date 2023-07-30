@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 
@@ -32,6 +33,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => { console.log('БД подключена'); })
   .catch(() => { console.log('Не удалось подключится к БД'); });
 
+app.use(errors());
 app.use(errorResponse); // Централизованная обработка ошибок
 
 app.listen(PORT, () => {
