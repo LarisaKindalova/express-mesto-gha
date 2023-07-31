@@ -4,15 +4,15 @@ const cardRouter = require('./cards');
 const { auth } = require('../middlewares/auth');
 const { NotFound } = require('../errors/not_found');
 const { createUser, login } = require('../controllers/users');
-const { validateCreateUser } = require('../middlewares/validate');
+const { validateLogin, validateCreateUser } = require('../middlewares/validate');
 
+router.post('/signin', validateLogin, login);
 router.post('/signup', validateCreateUser, createUser);
-router.post('/signin', login);
 
-router.use(auth); // для всех запросов ниже будет срабатывать мидлвара
+// router.use(auth); // для всех запросов ниже будет срабатывать мидлвара
 
-router.use('/users', userRouter);
-router.use('/cards', cardRouter);
+router.use('/users', auth, userRouter);
+router.use('/cards', auth, cardRouter);
 
 router.use('*', (req, res, next) => {
   next(new NotFound('Ошибка. Старница не найдена'));

@@ -9,7 +9,7 @@ module.exports.auth = (req, res, next) => {
     payload = jwt.verify(token, 'SECRET_KEY');
     console.log(payload);
   } catch (err) {
-    console.log('УПС');
+    console.log(err);
     return next(new Unauthorized('Пользователь не авторизирован'));
   }
   req.user = payload;
