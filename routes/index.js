@@ -14,7 +14,7 @@ router.post('/signup', validateCreateUser, createUser);
 router.use('/users', auth, userRouter);
 router.use('/cards', auth, cardRouter);
 
-router.use('*', (req, res, next) => {
+router.use('*', auth, (req, res, next) => {
   next(new NotFound('Ошибка. Старница не найдена'));
 });
 

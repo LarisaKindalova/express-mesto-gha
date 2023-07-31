@@ -13,10 +13,9 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(CREATE).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданны некорретные даные при создании пользователя'));
-      } else {
-        next(err);
+        return next(new BadRequest('Переданны некорретные даные при создании пользователя'));
       }
+      return next(err);
     });
 };
 
@@ -52,12 +51,12 @@ module.exports.putCardLike = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         console.log('не нашли');
-        next(new BadRequest('Переданы некорректные данные'));
+        return next(new BadRequest('Переданы некорректные данные'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound('Карточка с указаным id не найдена'));
+        return next(new NotFound('Карточка с указаным id не найдена'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -72,11 +71,11 @@ module.exports.deleteCardLike = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         console.log('не нашли');
-        next(new BadRequest('Переданы некорректные данные'));
+        return next(new BadRequest('Переданы некорректные данные'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound('Карточка  с указаным id не найдена'));
+        return next(new NotFound('Карточка  с указаным id не найдена'));
       }
-      next(err);
+      return next(err);
     });
 };

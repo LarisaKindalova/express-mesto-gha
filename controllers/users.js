@@ -15,14 +15,15 @@ module.exports.createUser = (req, res, next) => {
       name, about, avatar, email, password: hash,
     }))
     .then((user) => res.status(CREATE).send(user))
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError('Пользователь с такой почтой уже существует'));
-      } else if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданны некорретные даные при создании пользователя'));
-      } else {
-        next(err);
+        return next(new ConflictError('Пользователь с такой почтой уже существует'));
       }
+      if (err.name === 'ValidationError') {
+        return next(new BadRequest('Переданны некорретные даные при создании пользователя'));
+      }
+      return next(err);
     });
 };
 
@@ -63,10 +64,10 @@ module.exports.getUserById = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные'));
+        return next(new BadRequest('Переданы некорректные данные'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound('Пользователь с указанным id не найден'));
+        return next(new NotFound('Пользователь с указанным id не найден'));
       }
       return next(err);
     });
@@ -79,9 +80,9 @@ module.exports.updateUserInfo = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданны некорретные даные при обновлении данных пользователя'));
+        return next(new BadRequest('Переданны некорретные даные при обновлении данных пользователя'));
       } if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound('Пользователь с указанным id не найден'));
+        return next(new NotFound('Пользователь с указанным id не найден'));
       }
       return next(err);
     });
@@ -94,9 +95,9 @@ module.exports.updateUserAvatar = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданны некорретные даные при обновлении аватара'));
+        return next(new BadRequest('Переданны некорретные даные при обновлении аватара'));
       } if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound('Пользователь с указанным id не найден'));
+        return next(new NotFound('Пользователь с указанным id не найден'));
       }
       return next(err);
     });
